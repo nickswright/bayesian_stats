@@ -1,0 +1,21 @@
+model {
+
+# PRIORS
+
+    b0 ~ dnorm(0, 0.01)
+    b_tree  ~ dnorm(0, 0.01)
+    
+# LINEAR PREDICTOR
+    
+    for (i in 1:N_OBS) {
+      logit(p_flight[i]) <- b0 + b_tree * TREE_COVER[i]
+    }
+
+# LIKELIHOOD
+
+    for (i in 1:N_OBS) {
+        FLIGHT_PRESENT[i] ~ dbern(p_flight[i])
+    }
+
+}
+
