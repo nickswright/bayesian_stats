@@ -1,0 +1,45 @@
+model {
+
+# PRIORS
+
+    # Population-level mean intercept
+    mu_b0 ~ dnorm(0, 0.01) # grand intercept drawn from normal
+    
+    # Variation among intercepts
+    sigma_b0 ~ dunif(0, 5) # standard deviation for site-level intercepts
+    tau_b0 <- 1 / pow(sigma_b0, 2) # convert to precision for JAGS
+
+    # Draw site-specific intercepts from the population-level distribution
+    for (j in 1:N_SITE) {
+        b0[j] ~ dnorm(mu_b0, tau_b0)
+    }
+
+    
+    # Covariate priors
+    
+    b_year ~ dnorm(0, 0.01)
+    
+    # Set the first predator level as the reference category
+    b_pred[1] <- 0
+
+    # Priors for other predator levels
+    for (k in 2:N_PRED) {
+        b_pred[k] ~ dnorm(0, 0.01)
+    }
+
+# LINEAR PREDICTOR
+    
+    for (i in 1:N_OBS) {
+      logit(p_flight[i]) <- b0[SITE_ID[i]] + 
+                    b_year * YEAR[i] +
+                    b_pred[PREDATOR_ID[i]]
+
+    }
+
+# LIKELIHOOD
+
+    for (i in 1:N_OBS) {
+        FLIGHT_PRESENT[i] ~ dbern(p_flight[i])
+    }
+
+}

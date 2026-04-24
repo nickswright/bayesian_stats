@@ -1,0 +1,33 @@
+model {
+
+# PRIORS
+
+    b0 ~ dnorm(0, 0.01)
+    b_tree  ~ dnorm(0, 0.01)
+    b_year ~ dnorm(0, 0.01)
+    
+    # Set the first predator level as the reference category
+    b_pred[1] <- 0
+
+    # Priors for other predator levels
+    for (k in 2:N_PRED) {
+        b_pred[k] ~ dnorm(0, 0.01)
+    }
+
+# LINEAR PREDICTOR
+    
+    for (i in 1:N_OBS) {
+      logit(p_flight[i]) <- b0 + 
+                    b_tree * TREE_COVER[i] +
+                    b_year * YEAR[i] +
+                    b_pred[PREDATOR_ID[i]]
+
+    }
+
+# LIKELIHOOD
+
+    for (i in 1:N_OBS) {
+        FLIGHT_PRESENT[i] ~ dbern(p_flight[i])
+    }
+
+}

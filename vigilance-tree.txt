@@ -1,0 +1,35 @@
+# We model vigilance as a Beta‑distributed proportion, with its mean linked to tree cover through a logit function
+
+model {
+
+# PRIORS
+
+    b0 ~ dnorm(0, 0.01)
+    b_tree  ~ dnorm(0, 0.01)
+    
+    
+    # Precision (controls variance around the mean in beta distribution)
+    # We use gamma distribution because it is constrained to positive values
+    # Priors are very weak here, allowing the data to inform the value of phi
+    phi ~ dgamma(0.01, 0.01)
+
+    
+# LINEAR PREDICTOR
+
+for (i in 1:N_OBS) {
+      # Mean vigilance (on logit scale)
+      logit(mu[i]) <- b0 + b_tree * TREE_COVER[i]
+
+      # Beta distribution parameterization - phi and mu determine the shape of the distribution
+      # Alpha and beta are the shape parameters; they don't have biological/statistical meaning (unlike mu and phi; but they are derived from mu and phi)
+      alpha[i] <- mu[i] * phi
+      beta[i]  <- (1 - mu[i]) * phi
+}
+      
+# LIKELIHOOD
+
+    for (i in 1:N_OBS) {
+        VIGILANCE[i] ~ dbeta(alpha[i], beta[i])
+    }
+
+}

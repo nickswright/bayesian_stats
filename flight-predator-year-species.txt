@@ -1,0 +1,63 @@
+model {
+
+
+# POPULATION-LEVEL HYPERPRIORS
+
+  # Grand means
+  mu_b0     ~ dnorm(0, 0.01)
+  mu_b_year ~ dnorm(0, 0.01)
+
+  # Predator population means (reference predator = 1)
+  mu_b_pred[1] <- 0
+  for (k in 2:N_PRED) {
+    mu_b_pred[k] ~ dnorm(0, 0.01)
+  }
+
+# VARIANCE COMPONENTS (AMONG PREY)
+
+  sigma_b0   ~ dunif(0, 5)
+  tau_b0    <- 1 / pow(sigma_b0, 2)
+
+  sigma_year ~ dunif(0, 5)
+  tau_year  <- 1 / pow(sigma_year, 2)
+
+  sigma_pred ~ dunif(0, 5)
+  tau_pred  <- 1 / pow(sigma_pred, 2)
+
+# PREY-LEVEL EFFECTS
+
+  for (j in 1:N_PREY) {
+
+    # Prey-specific intercepts
+    b0_prey[j] ~ dnorm(mu_b0, tau_b0)
+
+    # Prey-specific year effects
+    b_year[j] ~ dnorm(mu_b_year, tau_year)
+
+    # Prey-specific predator effects (reference predator = 1)
+    b_pred[j, 1] <- 0
+    for (k in 2:N_PRED) {
+      b_pred[j, k] ~ dnorm(mu_b_pred[k], tau_pred)
+    }
+
+  }
+
+# LINEAR PREDICTOR
+
+  for (i in 1:N_OBS) {
+
+    logit(p_flight[i]) <-
+      b0_prey[PREY_ID[i]] +
+      b_year[PREY_ID[i]] * YEAR[i] +
+      b_pred[PREY_ID[i], PREDATOR_ID[i]]
+
+  }
+
+# LIKELIHOOD
+
+  for (i in 1:N_OBS) {
+    FLIGHT_PRESENT[i] ~ dbern(p_flight[i])
+  }
+
+
+}

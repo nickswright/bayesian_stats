@@ -1,0 +1,43 @@
+model {
+
+##############################################################################
+# SPECIFY PRIORS
+
+ # Intercept: baseline log-odds of flight
+    # Baseline log-odds of flight
+    # We specify prior as a normal distribution with mean = 0, SD = 0.01
+ 
+    b0 ~ dnorm(0, 0.01)
+
+# Slope (beta coefficient)
+    # Effect of tree cover on flight
+    # We specify prior as a normal distribution with mean = 0, SD = 0.01
+
+    b_tree  ~ dnorm(0, 0.01)
+    
+##############################################################################
+
+# LINEAR PREDICTOR
+    # Link function: logit-scale linear predictor
+    # Specifies how tree cover affects the log-odds of flight
+    
+    for (i in 1:N_OBS) {
+      logit(p_flight[i]) <- b0 + b_tree * TREE_COVER[i]
+    }
+
+
+##############################################################################
+
+# LIKELIHOOD
+
+    # This is your observation / data model
+    # Flight presence/absence at site i
+    # A Bernoulli random variable with probability p_flight[i]
+    
+    for (i in 1:N_OBS) {
+        FLIGHT_PRESENT[i] ~ dbern(p_flight[i])
+    }
+    
+##############################################################################
+
+}
