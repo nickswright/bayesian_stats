@@ -1,6 +1,7 @@
 library(rjags)
 library(jagsUI)
 library(MCMCvis)
+library(dplyr)
 
 flight <- read.csv("data/bayesian_flight_dataframe_demo.csv")
 
