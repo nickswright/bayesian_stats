@@ -19,7 +19,6 @@ pred_lookup <- tibble::tibble(
     PREDATOR = levels(flight$predator_cue)
 )
 
-
 b_year_df <- res_sum %>%
     filter(str_detect(variable, "^b_year\\[")) %>%
     mutate(
@@ -109,17 +108,28 @@ ggplot(
     ) +
     theme_bw()
 
-
 # Habitat -----------------------------------------------------------------
 
-# Organized by habitat, colored by prey
+b_hab <- res_sum %>%
+    filter(str_detect(variable, "^b_hab\\[")) %>%
+    mutate(
+        HABITAT_ID = as.integer(str_extract(variable, "\\d+"))
+    ) %>%
+    left_join(
+        tibble::tibble(
+            HABITAT_ID = seq_along(levels(as.factor(flight$habitat))),
+            HABITAT = levels(as.factor(flight$habitat))
+        ),
+        by = "HABITAT_ID"
+    )
 
+# Organized by habitat
 ggplot(
   b_hab,
   aes(
     x = mean,
     y = HABITAT,
-    colour = PREY
+    colour = HABITAT
   )
 ) +
   geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50") +
@@ -135,10 +145,7 @@ ggplot(
   labs(
     x = "Habitat effect (log-odds scale)",
     y = "Habitat type",
-    colour = "Prey",
-    title = "Habitat effects on flight, by prey species"
+    colour = "Habitat",
+    title = "Habitat effects on flight"
   ) +
   theme_bw()
-
-
-
