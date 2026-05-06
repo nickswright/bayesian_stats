@@ -79,7 +79,7 @@ MCMCvis::MCMCplot(
 model_out$summary
 
 # Tidy model output (get into a data frame)
-res_sum <- model_out$summary %>%
+res_sum5 <- model_out$summary %>%
     as.data.frame() %>%
     tibble::rownames_to_column() %>%
     tibble::as_tibble()

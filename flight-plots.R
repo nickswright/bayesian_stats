@@ -28,8 +28,10 @@ b_year_df <- res_sum %>%
     left_join(prey_lookup, by = "PREY_ID")
 
 
+#Year effect by prey species
 ggplot(b_year_df,
-       aes(x = mean, y = reorder(PREY, mean))) +
+       aes(
+         x = mean, y = reorder(PREY, mean))) +
     geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50") +
     geom_point(size = 2) +
     geom_errorbarh(aes(xmin = LCI, xmax = UCI), height = 0.2) +
@@ -39,6 +41,7 @@ ggplot(b_year_df,
         title = "Year effect by prey species"
     ) +
     theme_bw()
+
 
 
 b_pred_all <- res_sum %>%
@@ -51,6 +54,7 @@ b_pred_all <- res_sum %>%
     left_join(pred_lookup, by = "PREDATOR_ID") %>% 
     filter(PREDATOR != "Cheetah")
 
+# Organized by prey species colored by predator
 ggplot(
     b_pred_all,
     aes(
@@ -78,8 +82,7 @@ ggplot(
     theme_bw()
 
 
-# colored by prey
-
+# Organized by predator, colored by prey
 ggplot(
     b_pred_all,
     aes(
@@ -105,6 +108,37 @@ ggplot(
         title = "Predator effects on flight, by prey species"
     ) +
     theme_bw()
+
+
+# Habitat -----------------------------------------------------------------
+
+# Organized by habitat, colored by prey
+
+ggplot(
+  b_hab,
+  aes(
+    x = mean,
+    y = HABITAT,
+    colour = PREY
+  )
+) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(
+    position = position_dodge(width = 0.6),
+    size = 2
+  ) +
+  geom_errorbarh(
+    aes(xmin = LCI, xmax = UCI),
+    position = position_dodge(width = 0.6),
+    height = 0.25
+  ) +
+  labs(
+    x = "Habitat effect (log-odds scale)",
+    y = "Habitat type",
+    colour = "Prey",
+    title = "Habitat effects on flight, by prey species"
+  ) +
+  theme_bw()
 
 
 
